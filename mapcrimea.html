@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Жесткокрылые Крыма</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { height: 600px; }
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border: 2px solid #666;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="legend">
+        <b>Легенда:</b><br>
+        <span style="color: #FFA500">■</span> Предгорная лесостепь<br>
+        <span style="color: #008000">■</span> Горные леса<br>
+        <span style="color: #0000FF">■</span> Яйлы
+    </div>
+
+    <script>
+        // Инициализация карты
+        const map = L.map('map').setView([44.95, 34.1], 9);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Данные по зонам (координаты условны!)
+        const habitats = [
+            {
+                name: "Предгорная лесостепь",
+                coords: [[45.0, 34.0], [44.8, 34.5], [44.7, 33.8]],
+                color: "#FFA500",
+                examples: "Жужелицы, чернотелки, пластинчатоусые"
+            },
+            {
+                name: "Горные леса",
+                coords: [[44.5, 34.1], [44.6, 34.3], [44.4, 34.0]],
+                color: "#008000",
+                examples: "Жук-олень, альпийский усач, крымская жужелица"
+            },
+            {
+                name: "Яйлы",
+                coords: [[44.45, 34.05], [44.5, 34.2], [44.3, 34.1]],
+                color: "#0000FF",
+                examples: "Скакуны, горные жужелицы"
+            }
+        ];
+
+        // Добавление зон на карту
+        habitats.forEach(habitat => {
+            L.polygon(habitat.coords, {
+                color: habitat.color,
+                fillOpacity: 0.3
+            }).bindPopup(`
+                <b>${habitat.name}</b><br>
+                Примеры видов: ${habitat.examples}
+            `).addTo(map);
+        });
+
+        // Добавление маркеров с пояснениями
+        L.marker([44.8, 34.3])
+            .bindPopup("Предгорная лесостепь: зона с умеренной влажностью")
+            .addTo(map);
+
+        L.marker([44.5, 34.1])
+            .bindPopup("Горные леса: буковые и дубовые массивы")
+            .addTo(map);
+
+        L.marker([44.45, 34.1])
+            .bindPopup("Яйлы: карстовые плоскогорья")
+            .addTo(map);
+    </script>
+</body>
+</html>

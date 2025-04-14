@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #6a9fb5;
+            color: white;
+            padding: 5px;
+            text-align: center;
+        }
+        nav {
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            color: white;
+            text-decoration: none;
+        }
+        section {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #6a9fb5;
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+    </style>
+    
+    <title>Краснокнижные насекомые Крыма</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        .toggle-header-btn {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  padding: 5px 12px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: 0.3s;
+  font-size: 0.9em;
+}
+
+header.collapsed {
+  transform: translateY(-80%);
+  opacity: 0.2;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+header.collapsed:hover {
+  opacity: 0.9;
+}
+
+header {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+}
+        #map { height: 740px; }
+        .legend { 
+            padding: 10px;
+            background: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!--<button id="toggleMenuBtn" class="toggle-header-btn">▲ Свернуть меню</button>-->
+        <h1>Энтомофауна Крыма</h1>
+        <nav>
+            <a href="index.html">Обзор</a>
+            <a href="basicinf.html">Виды</a>
+            <a href="testmap.html">Среда обитания</a>
+            <a href="security.html">Охрана</a>
+            <a href="galery.html">Галерея</a>
+        </nav>
+    </header>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        
+        
+     
+        const map = L.map('map').setView([44.9521, 34.1024], 9);
+
+        
+
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    
+        const habitats = [
+            {
+                name: "Предгорная лесостепь",
+                coords: [[45.0, 34.0], [44.8, 34.5], [44.7, 33.8]],
+                color: "#FFA500",
+                examples: "Жужелицы, чернотелки, пластинчатоусые"
+            },
+            {
+                name: "Горные леса",
+                coords: [[44.5, 34.1], [44.6, 34.3], [44.4, 34.0]],
+                color: "#008000",
+                examples: "Жук-олень, альпийский усач, крымская жужелица"
+            },
+            {
+                name: "Яйлы",
+                coords: [[44.45, 34.05], [44.5, 34.2], [44.3, 34.1]],
+                color: "#0000FF",
+                examples: "Скакуны, горные жужелицы"
+            }
+        ];
+        
+        const markers = [
+  {
+    name: "Крымская жужелица",
+    coords: [44.835, 34.15],
+    species: "Крымская жужелица",
+    img: "img/img2.jpg"
+  },
+  {
+    name: "Жук-олень",
+    coords: [44.8, 34.3],
+    species: "Жук-олень",
+    img: "img/img1.jpg"
+  },
+  {
+    name: "Альпийский усач",
+    coords: [44.7, 34.2],
+    species: "Альпийский усач",
+    img: "img/img16.jpg"
+  },
+  {
+    name: "Пилохвост Плигинского",
+    coords: [44.6, 34.1],
+    species: "Пилохвост Плигинского",
+    img: "img/img5.jpg"
+  },
+  {
+    name: "Бабочка-парусник",
+    coords: [44.4978, 33.4895],
+    species: "Бабочка-парусник",
+    img: "img/img3.jpg"
+  },
+  {
+    name: "Настоящая моль",
+    coords: [44.8206, 34.0803],
+    species: "Настоящая моль",
+    img: "img/img4.jpg"
+  },
+  {
+    name: "Жужелица Дублянского",
+    coords: [44.4667,  34.0500],
+    species: "Жужелица Дублянского",
+    img: "img/photonet.jpg"
+  },
+  {
+    name: "Хрущик лисичка",
+    coords: [44.7550,  33.8790 ],
+    species: "Хрущик лисичка",
+    img: "img/img6.jpg"
+  },
+  {
+    name: "Скакун Бессера",
+    coords: [45.3907,  36.5666 ],
+    species: "Скакун Бессера",
+    img: "img/img7.jpg"
+  },
+  {
+    name: "Жужелица Шевролата",
+    coords: [44.7767,  33.5505 ],
+    species: "Жужелица Шевролата",
+    img: "img/img9.jpg"
+  },
+  {
+    name: "Венгерская жужелица",
+    coords: [44.9,  34.1 ],
+    species: "Венгерская жужелица",
+    img: "img/img8.jpg"
+  },
+  {
+    name: "Жужелица Щеглова",
+    coords: [44.8,  34.4 ],
+    species: "Жужелица Щеглова",
+    img: "img/img10.jpg"
+  },
+  {
+    name: "Жужелица бессарабская  ",
+    coords: [44.7500,   34.0000 ],
+    species: "Жужелица бессарабская ",
+    img: "img/img11.jpg"
+  },
+  {
+    name: "Жужелица-дама ",
+    coords: [44.7500,   34.1667 ],
+    species: "Жужелица-дама ",
+    img: "img/img12.jpg"
+  },
+  {
+    name: "Псевдафенопс Якобсона ",
+    coords: [44.755,   34.3417 ],
+    species: "Псевдафенопс Якобсона",
+    img: "img/photonet.jpg"
+  },
+  {
+    name: "Псевдафенопс таврический ",
+    coords: [44.8500, 34.2833 ],
+    species: "Псевдафенопс таврический ",
+    img: "img/img13.jpg"
+  },
+  {
+    name: "Большой дубовый усач",
+    coords: [44.85, 34.2835 ],
+    species: "Большой дубовый усач",
+    img: "img/img14.jpg"
+  },
+  {
+    name: "Узлоусый дровосек",
+    coords: [44.51, 34.1700 ],
+    species: "Узлоусый дровосек",
+    img: "img/img15.jpg"
+  },
+  {
+    name: "Хесперофанес шелковистый",
+    coords: [44.5714, 34.3247 ],
+    species: "Хесперофанес шелковистый",
+    img: "img/img17.jpg"
+  },
+  {
+    name: "Усач-краснокрыл Ренивона",
+    coords: [ 44.9167, 35.2000 ],
+    species: "Усач-краснокрыл Ренивона",
+    img: "img/img18.jpg"
+  },
+  {
+    name: "Дыбка степная",
+    coords: [ 44.8306, 34.8157 ],
+    species: "Дыбка степная",
+    img: "img/img20.jpg"
+  },
+  {
+    name: "Лесолюбка Ретовского",
+    coords: [ 44.8247, 35.0958 ],
+    species: "Лесолюбка Ретовского",
+    img: "img/img21.jpg"
+  },
+  {
+    name: "Negotinthia efetovi",
+    coords: [ 45.0603, 34.3306 ],
+    species: "Negotinthia efetovi",
+    img: "img/img23.jpg"
+  },
+  {
+    name: "Мешочница Плигинского",
+    coords: [ 44.5455, 34.2416 ],
+    species: "Мешочница Плигинского",
+    img: "img/img28.jpg"
+  },
+  {
+    name: "Пестрянка степная",
+    coords: [ 45.1511, 33.2731 ],
+    species: "Пестрянка степная",
+    img: "img/img29.jpg"
+  },
+  {
+    name: "Мегарисса жемчужная",
+    coords: [ 44.5110, 34.2495 ],
+    species: "Мегарисса жемчужная",
+    img: "img/megarisa.jpg"
+  },
+  {
+    name: "Сколия-гигант",
+    coords: [ 44.57, 34.06 ],
+    species: "Сколия-гигант",
+    img: "img/megaskolia.jpg"
+  },
+  {
+    name: "Пчела-плотник фиолетовая",
+    coords: [ 44.4171, 34.0061],
+    species: "Пчела-плотник фиолетовая",
+    img: "img/beaplotnik.jpg"
+  },
+  {
+    name: "Шмель моховой",
+    coords: [ 45.0032, 33.6082],
+    species: "Шмель моховой",
+    img: "img/shmelmoh.jpg"
+  },
+  {
+    name: "Сфекс желтоватый",
+    coords: [ 44.9444, 33.9697],
+    species: "Сфекс желтоватый",
+    img: "img/spheks.jpg"
+  },
+  {
+    name: "Сжатобрюх полосатый",
+    coords: [ 44.57, 34.06],
+    species: "Сжатобрюх полосатый",
+    img: "img/sjatop.jpg"
+  },
+  {
+    name: "Сжатобрюх южный",
+    coords: [ 44.50, 34.20],
+    species: "Сжатобрюх южный",
+    img: "img/img31.jpg"
+  },
+  {
+    name: "Стрекоза перевязанная",
+    coords: [ 45, 34],
+    species: "Стрекоза перевязанная",
+    img: "img/img32.jpg"
+  },
+  {
+    name: "Лютка крупноглазковая",
+    coords: [ 45.2833, 34.1884],
+    species: "Лютка крупноглазковая",
+    img: "img/img33.jpg"
+  },
+  {
+    name: "Лютка мелкозубая",
+    coords: [ 44.6007, 33.8928],
+    species: "Лютка мелкозубая",
+    img: "img/img34.jpg"
+  },
+  {
+    name: "Обыкновенный богомол",
+    coords: [ 44.5467, 33.6549],
+    species: "Обыкновенный богомол",
+    img: "img/img35.jpg"
+  },
+  {
+    name: "Эмпуза полосатая",
+    coords: [ 45.5467, 34.6549],
+    species: "Эмпуза полосатая",
+    img: "img/img36.jpg"
+  },
+
+
+];
+
+markers.forEach(marker => {
+  const popupContent = `
+    <div class="popup-content">
+      <strong>${marker.name}</strong><br>
+      <em>${marker.species}</em><br>
+      <img src="${marker.img}" alt="${marker.species}" />
+    </div>
+  `;
+  L.marker(marker.coords)
+    .addTo(map)
+    .bindPopup(popupContent);
+});
+
+        
+
+    Object.entries(speciesData).forEach(([name, data]) => {
+        if(data.zones) { 
+            data.zones.forEach(zone => {
+                L.polygon(zone.coords, {
+                    color: zone.color,
+                    fillOpacity: zone.opacity || 0.3
+                }).bindPopup(`<b>${name}</b><br>${zone.description || 'Основной ареал'}`)
+                  .addTo(map);
+            });
+        } else { 
+            L.polygon(data.coords, {
+                color: data.color,
+                fillOpacity: 0.3
+            }).bindPopup(`<b>${name}</b><br>Ареал обитания`).addTo(map);
+        }
+    })
+        
+
+       
+        Object.entries(speciesData).forEach(([name, data]) => {
+            L.polygon(data.coords, {
+                color: data.color,
+                fillOpacity: 0.3
+            }).bindPopup(`<b>${name}</b><br>Ареал обитания`).addTo(map);
+        });
+     Object.entries(speciesData).forEach(([name, data]) => {
+        if(data.zones) { 
+            data.zones.forEach(zone => {
+                L.polygon(zone.coords, {
+                    color: zone.color,
+                    fillOpacity: zone.opacity || 0.3
+                }).bindPopup(`<b>${name}</b><br>${zone.description || 'Основной ареал'}`)
+                  .addTo(map);
+            });
+        } else { 
+            L.polygon(data.coords, {
+                color: data.color,
+                fillOpacity: 0.3
+            }).bindPopup(`<b>${name}</b><br>Ареал обитания`).addTo(map);
+        }
+    })
+        
+
+       
+        Object.entries(speciesData).forEach(([name, data]) => {
+            L.polygon(data.coords, {
+                color: data.color,
+                fillOpacity: 0.3
+            }).bindPopup(`<b>${name}</b><br>Ареал обитания`).addTo(map);
+        });
+   
+
+     
+        const legend = L.control({position: 'bottomright'});
+        legend.onAdd = function() {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<h4>Легенда</h4>';
+            Object.entries(speciesData).forEach(([name, data]) => {
+                div.innerHTML += 
+                    `<i style="background:${data.color}; opacity:0.3"></i> ${name}<br>`;
+            });
+            return div;
+        };
+        legend.addTo(map);
+
+        
+    
+    </script>
+    <style>
+.toggle-header-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: 0.3s;
+}
+
+.toggle-header-btn:hover {
+  background: #45a049;
+}
+
+#header {
+  transition: 0.3s;
+}
+
+.hidden {
+  display: none !important;
+}
+</style>
+
+<!-- JavaScript -->
+<script>
+function toggleHeader() {
+  const header = document.getElementById('header');
+  const button = document.querySelector('.toggle-header-btn');
+  
+  header.classList.toggle('hidden');
+  
+  if (header.classList.contains('hidden')) {
+    button.textContent = 'Показать шапку';
+  } else {
+    button.textContent = 'Скрыть шапку';
+  }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      toggleHeader();
+    }
+  });
+});
+function toggleHeader() {
+  const header = document.querySelector('header');
+  const btn = document.getElementById('toggleMenuBtn');
+  
+  header.classList.toggle('collapsed');
+  
+  if(header.classList.contains('collapsed')) {
+    btn.innerHTML = '▼ Показать меню';
+    btn.style.backgroundColor = '#e74c3c';
+  } else {
+    btn.innerHTML = '▲ Свернуть меню';
+    btn.style.backgroundColor = '#4CAF50';
+  }
+  document.querySelector('header').ondblclick = toggleHeader;
+}
+</script>
+    <footer>
+        <p>© 2025 Энтомофауна Крыма. Все права защищены.</p>
+    </footer>
+</body>
+</html>
